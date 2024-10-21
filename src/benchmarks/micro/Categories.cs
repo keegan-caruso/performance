@@ -16,6 +16,8 @@ namespace MicroBenchmarks
         /// benchmarks belonging to this category are executed for CI jobs
         /// </summary>
         public const string Libraries = "Libraries";
+
+        public const string ChainedSelects = "ChainedSelects";
         
         /// <summary>
         /// benchmarks belonging to this category are executed for CI jobs
