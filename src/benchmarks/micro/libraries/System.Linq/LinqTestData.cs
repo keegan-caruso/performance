@@ -6,6 +6,53 @@ using System.Collections.Generic;
 
 namespace System.Linq.Tests
 {
+    public class LinqTestDataRefTypes
+    {
+        private static class DataContainer
+        {
+            internal static TestObject[] ArrayOfObjects = new TestObject[100];
+
+            static DataContainer()
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    ArrayOfObjects[i] = new TestObject { Value = i };
+                }
+            }
+        }
+
+        internal static readonly LinqTestDataRefTypes IEnumerable = new(new LinqTestData.IEnumerableWrapper<TestObject>(DataContainer.ArrayOfObjects));
+        internal static readonly LinqTestDataRefTypes IList = new(new LinqTestData.IListWrapper<TestObject>(DataContainer.ArrayOfObjects));
+        internal static readonly LinqTestDataRefTypes List = new (new List<TestObject>(DataContainer.ArrayOfObjects));
+        internal static readonly LinqTestDataRefTypes Array = new (DataContainer.ArrayOfObjects);
+
+        private LinqTestDataRefTypes(IEnumerable<TestObject> collection) => Collection = collection;
+
+        internal IEnumerable<TestObject> Collection { get; }
+
+        public override string ToString()
+        {
+            switch (Collection)
+            {
+                case TestObject[] _:
+                    return "Array";
+                case List<TestObject> _:
+                    return "List";
+                case IList<TestObject> _:
+                    return "IList";
+                case ICollection<TestObject> _:
+                    return "ICollection";
+                default:
+                    return "IEnumerable";
+            }
+        }
+    }
+
+    internal class TestObject
+    {
+        public int Value { get; set; }
+    }
+
     public class LinqTestData
     {
         // this field is a const (not instance field) to avoid creating closures in tested LINQ
@@ -47,7 +94,7 @@ namespace System.Linq.Tests
             }
         }
 
-        private class IEnumerableWrapper<T> : IEnumerable<T>
+        internal class IEnumerableWrapper<T> : IEnumerable<T>
         {
             private readonly T[] _array;
             public IEnumerableWrapper(T[] array) => _array = array;
@@ -74,7 +121,7 @@ namespace System.Linq.Tests
             public bool Remove(T item) => throw new NotImplementedException();
         }
 
-        private class IListWrapper<T> : IList<T>
+        internal class IListWrapper<T> : IList<T>
         {
             private readonly T[] _array;
             public IListWrapper(T[] array) => _array = array;
